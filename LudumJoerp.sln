@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LudumJoerp", "LudumJoerp\LudumJoerp\LudumJoerp.csproj", "{72528D9D-5917-40AB-B300-4DB303E5E963}"
+EndProject
+Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "LudumJoerpContent", "LudumJoerp\LudumJoerpContent\LudumJoerpContent.contentproj", "{CEB417E4-2CF3-4447-8C7D-6C3B069A3F9D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{72528D9D-5917-40AB-B300-4DB303E5E963}.Debug|x86.ActiveCfg = Debug|x86
+		{72528D9D-5917-40AB-B300-4DB303E5E963}.Debug|x86.Build.0 = Debug|x86
+		{72528D9D-5917-40AB-B300-4DB303E5E963}.Release|x86.ActiveCfg = Release|x86
+		{72528D9D-5917-40AB-B300-4DB303E5E963}.Release|x86.Build.0 = Release|x86
+		{CEB417E4-2CF3-4447-8C7D-6C3B069A3F9D}.Debug|x86.ActiveCfg = Debug|x86
+		{CEB417E4-2CF3-4447-8C7D-6C3B069A3F9D}.Release|x86.ActiveCfg = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
