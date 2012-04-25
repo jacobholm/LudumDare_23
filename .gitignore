@@ -21,11 +21,13 @@ Thumbs.db
 *.tmp
 *.opensdf
 *.db
+*.7z
 [Bb]in
 [Dd]ebug*/
 *.lib
 *.sbr
 obj/
+publish/
 [Rr]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*
