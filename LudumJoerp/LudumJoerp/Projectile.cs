@@ -16,15 +16,15 @@ namespace LudumJoerp
 
 		public Projectile(
 			Vector3 positionIn,
-			Vector2 velocityIn/*,
-			Texture2D textureIn,
-			float fRadiusIn = 5*/
+			Vector2 velocityIn,
+			/*Texture2D textureIn,*/
+			float fRadiusIn = 5
 		)
 		{
 			position = positionIn;
 			velocity = velocityIn;
-			/*fRadius = fRadiusIn;
-			texture = textureIn;*/
+			fRadius = fRadiusIn;
+			/*texture = textureIn;*/
 		}
 	}
 }

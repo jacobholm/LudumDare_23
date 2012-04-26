@@ -26,7 +26,7 @@ namespace LudumJoerp
 			sName = sNameIn;
 			position = positionIn;
 			m_fRotationY = 0;
-			fRadius = 1;
+			fRadius = 35;
 		}
 
 		public void vSetRotation(

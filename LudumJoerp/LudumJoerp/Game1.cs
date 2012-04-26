@@ -16,59 +16,39 @@ namespace LudumJoerp
 	/// </summary>
 	public class Game1 : Microsoft.Xna.Framework.Game
 	{
-		readonly GraphicsDeviceManager
+		readonly private GraphicsDeviceManager
 			m_graphics;
-		SpriteBatch
-			m_spriteBatch;
-
-		Player
+		private Canvas
+			m_canvas;
+		private Player
 			m_player;
-
-		private List<Planet>
-			m_planets;
-
+		private Entity
+			m_homePlanet;
 		private List<Projectile>
 			m_projectiles;
-
 		private Texture2D
-			m_texture,
 			m_textureProjectile;
-
 		private const int
 			m_iWindowWidth = 1024,
 			m_iWindowHeight = 1024;
-
 		private float
-			m_fFov,
 			m_fPlanetRot,
 			m_fModelScaleFactor = 2.54f;	// FBX scales the model for some stupid reason, NOT MY FAULT!?!!
-
 		private double
 			m_dGameTimeLastShot;
 
 		// Set the position of the model in world space, and set the rotation.
 		// Set the position of the camera in world space, for our view matrix.
-		readonly private Vector3
-			m_cameraPosition = new Vector3(0.0f, 2000.0f, 0.0f);
-
-		// Sprite font
-		SpriteFont m_font1;
-		//Vector2 FontPos;
+		private Vector3
+			m_cameraPosition;
+		private SpriteFont
+			m_font1;	// Sprite font
 		private BasicEffect
-			m_bulletEffect;
-
+			m_projectEffect;
 		private VertexPositionNormalTexture[]
 			m_bulletPlaneVerts;
-
-		private VertexPositionColor[]
-			m_boundingBoxVerts;
-
 		private int[]
 			m_bulletPlaneIndices;
-
-		private Matrix
-				m_projMat,
-				m_viewMat;
 
 		public Game1()
 		{
@@ -84,7 +64,6 @@ namespace LudumJoerp
 		/// </summary>
 		protected override void Initialize()
 		{
-			// TODO: Add your initialization logic here
 			// GraphicsDevice settings
 			//graphics.ToggleFullScreen();
 			m_graphics.PreferredBackBufferWidth = m_iWindowWidth;
@@ -92,15 +71,15 @@ namespace LudumJoerp
 			Window.Title = "LudumJoerp";
 			m_graphics.ApplyChanges();
 
-			m_fFov = 45;
 			m_fPlanetRot = 0;
 			m_dGameTimeLastShot = 0;
 			m_projectiles = new List<Projectile>();
 			m_player = new Player("Player 1", new Vector3(-500, 0, 0));
+			m_cameraPosition = new Vector3(m_player.position.X, 2000.0f, m_player.position.Z);
 
-			m_projMat = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(m_fFov),
-			                                                (m_iWindowWidth/(float) m_iWindowHeight), 0.1f, 10000.0f);
-			m_viewMat = Matrix.CreateLookAt(m_cameraPosition, Vector3.Zero, Vector3.Forward);
+			Matrix
+				projMat = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), (m_iWindowWidth/(float) m_iWindowHeight), 0.1f, 10000.0f);
+			m_canvas = new Canvas(projMat, m_graphics.GraphicsDevice);
 
 			base.Initialize();
 		}
@@ -111,29 +90,22 @@ namespace LudumJoerp
 		/// </summary>
 		protected override void LoadContent()
 		{
-			// Create a new SpriteBatch, which can be used to draw textures.
-			m_spriteBatch = new SpriteBatch(GraphicsDevice);
-
-			//m_model = Content.Load<Model>("ball");											// Load our ball model
-			m_texture = Content.Load<Texture2D>("textures\\ballwhite");	// Load our ball texture
 			m_textureProjectile = Content.Load<Texture2D>("textures\\projectile");
 			m_player.model = Content.Load<Model>("teapot");
-			m_planets = new List<Planet>();
-			m_planets.Add(new Planet(new Vector3(0, 0, 0), Content.Load<Model>("planet"), 100 ));
+			m_homePlanet = new Entity(new Vector3(0, 0, 0), Content.Load<Model>("planet"), 100);
 
+			// Font
 			m_font1 = Content.Load<SpriteFont>("SpriteFont1");
-			//FontPos = new Vector2(300, 50);
 
-			// Bullet effect
-			m_bulletEffect = new BasicEffect(GraphicsDevice);
-			m_bulletEffect.EnableDefaultLighting();
-			m_bulletEffect.PreferPerPixelLighting = true;
-			m_bulletEffect.SpecularColor = new Vector3(0.1f, 0.1f, 0.1f);
+			// Projectile effect
+			m_projectEffect = new BasicEffect(GraphicsDevice);
+			m_projectEffect.EnableDefaultLighting();
+			m_projectEffect.PreferPerPixelLighting = true;
+			m_projectEffect.SpecularColor = new Vector3(0.1f, 0.1f, 0.1f);
+			m_projectEffect.TextureEnabled = true;
+			m_projectEffect.Texture = m_textureProjectile;
 
-			m_bulletEffect.TextureEnabled = true;
-			m_bulletEffect.Texture = m_textureProjectile;
-
-			// Bullet plane verts
+			// Projectile plane verts
 			m_bulletPlaneVerts = new VertexPositionNormalTexture[4];
 			m_bulletPlaneIndices = new [] {0, 1, 2, 0, 2, 3};
 
@@ -174,39 +146,98 @@ namespace LudumJoerp
 
 			// Update player velocity
 			if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Up))
-				m_player.velocity += new Vector2((float)Math.Cos(MathHelper.ToRadians(m_player.fGetRotation())) * 0.1f, -(float)Math.Sin(MathHelper.ToRadians(m_player.fGetRotation()))  * 0.1f);
+				m_player.velocity += new Vector2((float)Math.Cos(MathHelper.ToRadians(m_player.fGetRotation())) * 0.05f, -(float)Math.Sin(MathHelper.ToRadians(m_player.fGetRotation()))  * 0.05f);
 
 			// Update player position based on velocity
 			m_player.position += new Vector3(m_player.velocity.X, 0, m_player.velocity.Y);
 
-			// Check player collision with the edges of the screen
-			/*
-			Vector2
-				screenCoordsPos = worldToScreenCoords(m_player.position.X, m_player.position.Z),
-				screenCoordsRad = worldToScreenCoords(m_player.fRadius, m_player.fRadius);
-			float
-				fRad = screenCoordsRad.X - (m_iWindowWidth/2);
-			if ((screenCoordsPos.X + fRad) > m_iWindowWidth || (screenCoordsPos.X - fRad) < 0)
-				m_player.velocity *= new Vector2(-1, 1);
-			if ((screenCoordsPos.Y + fRad) > m_iWindowWidth || (screenCoordsPos.Y - fRad) < 0)
-				m_player.velocity *= new Vector2(1, -1);
-			*/
-
 			// Update projectile positions and check for collisions with planets
 			for (int i = 0; i < m_projectiles.Count; i++)
 			{
-				if (boCheckCircleCollision(m_projectiles[i].position, m_planets[0].position, m_projectiles[i].fRadius, m_planets[0].fRadius))
+				if (boCheckCircleCollision(m_projectiles[i].position, m_homePlanet.position, m_projectiles[i].fRadius, m_homePlanet.fRadius))
 					m_projectiles.RemoveAt(i);
 				else
 					m_projectiles[i].position += new Vector3(m_projectiles[i].velocity.X, 0, m_projectiles[i].velocity.Y);
 			}
 
+			// Check for collisions between player and planet
+			if (boCheckCircleCollision(m_player.position, m_homePlanet.position, m_player.fRadius, m_homePlanet.fRadius))
+			{
+				// Move the two circles apart so that they don't overlap
+				float
+					fOverlap,
+					magnitude,
+					V1nB,
+					V1tB,
+					V2nB,
+					V2tB,
+					V1tA,
+					V2tA,
+					V1nA,
+					V2nA;
+
+				Vector3
+					distance = m_homePlanet.position - m_player.position;
+				Vector2
+					normalizedVelocity = m_player.velocity;
+				normalizedVelocity.Normalize();
+				fOverlap = (m_player.fRadius + m_homePlanet.fRadius) - distance.Length();
+				Vector2
+					overlapDistance = new Vector2(normalizedVelocity.X*fOverlap, normalizedVelocity.Y*fOverlap);
+
+				m_player.position -= new Vector3(overlapDistance.X, 0, overlapDistance.Y);
+				
+				// The normal vector between the colliding surfaces of the m_balls
+				float[]
+					unitNormalVec = { m_homePlanet.position.X - m_player.position.X, m_homePlanet.position.Z - m_player.position.Z };
+
+				// Normalize the vector
+				magnitude = (float)Math.Sqrt(Math.Pow(unitNormalVec[0], 2) + Math.Pow(unitNormalVec[1], 2));
+				unitNormalVec[0] /= magnitude;
+				unitNormalVec[1] /= magnitude;
+
+				// The tangent vector between the colliding surfaces of the m_balls
+				float[]
+					unitTangentVec = { -unitNormalVec[1], unitNormalVec[0] };
+
+				// Resolve the SCALAR tangential and normal components from the original velocity vectors
+				V1nB = (unitNormalVec[0] * m_player.velocity.X) + (unitNormalVec[1] * m_player.velocity.Y);   // Normal vector for ball1
+				V1tB = (unitTangentVec[0] * m_player.velocity.X) + (unitTangentVec[1] * m_player.velocity.Y); // Tangent vector for ball1
+				V2nB = (unitNormalVec[0] * 0f/*planet velocity X*/) + (unitNormalVec[1] * 0f/*planet velocity Y*/);   // Normal vector for ball2
+				V2tB = (unitTangentVec[0] * 0f/*planet velocity X*/) + (unitTangentVec[1] * 0f/*planet velocity Y*/);	// Tangent vector for ball2
+
+				// Calculate velocity scalar AFTER the collision for the normal and tangent vectors
+				V1tA = V1tB;
+				V2tA = V2tB;	// The tangent vector after are the same as the ones before, since there is no force in tangential direction between the m_balls
+
+				// Calculate the normal scalars after collision for both m_balls
+				V1nA = ((V1nB * (/*player mass*/1f - /*planet mass*/100f)) + (2 * /*planet mass*/100f * V2nB)) / (/*player mass*/1f + /*planet mass*/100f);	// Normal velocity scalar after collision for ball1
+				V2nA = ((V2nB * (/*planet mass*/100f - /*player mass*/1f)) + (2 * /*player mass*/1f * V1nB)) / (/*player mass*/1f + /*planet mass*/100f);	// Normal velocity scalar after collision for ball2
+
+				// Convert scalar normal/tangential velocities into vectors by multiplying them with the initial normal/tangential vectors
+				float[]
+					V1nVecA = { V1nA * unitNormalVec[0], V1nA * unitNormalVec[1] },
+					V1tVecA = { V1tA * unitTangentVec[0], V1tA * unitTangentVec[1] },
+					V2nVecA = { V2nA * unitNormalVec[0], V2nA * unitNormalVec[1] },
+					V2tVecA = { V2tA * unitTangentVec[0], V2tA * unitTangentVec[1] },
+
+				// Add the normal/tangential vectors for each object to find the final vectors
+					V1A = { V1nVecA[0] + V1tVecA[0], V1nVecA[1] + V1tVecA[1] };
+
+				// Assign the new vector to the planet
+				m_player.velocity = new Vector2(V1A[0], V1A[1]);
+			}
+
 			// Handle shooting
-			if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Space) && (gameTime.TotalGameTime.TotalMilliseconds - m_dGameTimeLastShot) > 500)
+			if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Space) && (gameTime.TotalGameTime.TotalMilliseconds - m_dGameTimeLastShot) > 100)
 			{
 				m_dGameTimeLastShot = gameTime.TotalGameTime.TotalMilliseconds;
 				m_projectiles.Add(m_player.shoot());
 			}
+
+			// Update camera and view projection
+			m_cameraPosition = new Vector3(m_player.position.X, 3000.0f, m_player.position.Z);
+			m_canvas.m_viewMat = Matrix.CreateLookAt(m_cameraPosition, m_player.position, Vector3.Forward);
 
 			base.Update(gameTime);
 		}
@@ -219,86 +250,30 @@ namespace LudumJoerp
 		{
 			GraphicsDevice.Clear(Color.Black);
 
-			Matrix[]
-				transforms = new Matrix[m_player.model.Bones.Count];
-			m_player.model.CopyAbsoluteBoneTransformsTo(transforms);
+			// Draw the player
+			Matrix
+				transformationMatrix = Matrix.CreateScale(1.0f / m_fModelScaleFactor)
+															 * Matrix.CreateRotationY(MathHelper.ToRadians(m_player.fGetRotation()))
+															 * Matrix.CreateTranslation(m_player.position);
+			m_canvas.vDrawModel(m_player.model, transformationMatrix);
 
-			// Draw the player. A model can have multiple meshes, so loop.
-			foreach (ModelMesh mesh in m_player.model.Meshes)
-			{
-				// This is where the mesh orientation is set, as well 
-				// as our camera and projection.
-				foreach (BasicEffect effect in mesh.Effects)
-				{
-					effect.EnableDefaultLighting();
-					effect.World = transforms[mesh.ParentBone.Index]
-						* Matrix.CreateScale(1.0f/m_fModelScaleFactor)
-						* Matrix.CreateRotationY(MathHelper.ToRadians(m_player.fGetRotation()))
-						* Matrix.CreateTranslation(m_player.position);
-					effect.View = m_viewMat;
-					effect.Projection = m_projMat;
-					effect.DiffuseColor = new Vector3(255, 0, 0);
-				}
-				// Draw the mesh, using the effects set above.
-				mesh.Draw();
-			}
-
-			// Draw planets
-			foreach (Planet planet in m_planets)
-			{
-				foreach (ModelMesh mesh in planet.model.Meshes)
-				{
-					// This is where the mesh orientation is set, as well 
-					// as our camera and projection.
-					foreach (BasicEffect effect in mesh.Effects)
-					{
-						effect.EnableDefaultLighting();
-						effect.World = transforms[mesh.ParentBone.Index]
-							* Matrix.CreateScale(1.0f / m_fModelScaleFactor)
-							* Matrix.CreateRotationY(MathHelper.ToRadians(m_fPlanetRot))	// rotate around its own axis then give a default rotation of 25degrees
-							* Matrix.CreateRotationZ(MathHelper.ToRadians(-25))
-							* Matrix.CreateTranslation(planet.position);
-						effect.View = m_viewMat;
-						effect.Projection = m_projMat;
-						effect.AmbientLightColor = new Vector3(255, 255, 255);
-					}
-
-					// Draw the mesh, using the effects set above.
-					mesh.Draw();
-				}
-			}
-
-			/*
-			// Draw boundingBox
-			{
-				m_bulletEffect.TextureEnabled = false;
-				m_bulletEffect.LightingEnabled = false;
-				m_bulletEffect.VertexColorEnabled = true;
-				m_bulletEffect.World = Matrix.CreateTranslation(m_planets[0].position);
-				m_bulletEffect.View = viewMat;
-				m_bulletEffect.Projection = projMat;
-				m_bulletEffect.DiffuseColor = new Vector3(255, 255, 255);
-
-				foreach (EffectPass pass in m_bulletEffect.CurrentTechnique.Passes)
-				{
-					pass.Apply();
-
-					GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionColor>(PrimitiveType.TriangleList, m_boundingBoxVerts, 0, 4, m_bulletPlaneIndices, 0, 2);
-				}
-			}
-			*/
+			// Draw planet
+			transformationMatrix = Matrix.CreateScale(1.0f/m_fModelScaleFactor)
+				                      *Matrix.CreateRotationY(MathHelper.ToRadians(m_fPlanetRot))
+				                      // rotate around its own axis then give a default rotation of 25degrees
+				                      *Matrix.CreateRotationZ(MathHelper.ToRadians(-25))
+															* Matrix.CreateTranslation(m_homePlanet.position);
+			m_canvas.vDrawModel(m_homePlanet.model, transformationMatrix);
 
 			// Draw projectiles
 			for (int i = 0; i < m_projectiles.Count; i++)
 			{
-				m_bulletEffect.World = //transforms[mesh.ParentBone.Index] *
-					//Matrix.CreateRotationY(MathHelper.ToRadians(m_player.fGetRotation())) *
-					Matrix.CreateTranslation(m_projectiles[i].position + new Vector3(-m_projectiles[i].fRadius, 0, -m_projectiles[i].fRadius));
-				m_bulletEffect.View = m_viewMat;
-				m_bulletEffect.Projection = m_projMat;
-				m_bulletEffect.DiffuseColor = new Vector3(0, 255, 255);
+				m_projectEffect.World = Matrix.CreateTranslation(m_projectiles[i].position + new Vector3(-m_projectiles[i].fRadius, 0, -m_projectiles[i].fRadius));
+				m_projectEffect.View = m_canvas.m_viewMat;
+				m_projectEffect.Projection = m_canvas.m_projMat;
+				m_projectEffect.DiffuseColor = new Vector3(255, 0, 0);
 
-				foreach (EffectPass pass in m_bulletEffect.CurrentTechnique.Passes)
+				foreach (EffectPass pass in m_projectEffect.CurrentTechnique.Passes)
 				{
 					pass.Apply();
 
@@ -308,35 +283,16 @@ namespace LudumJoerp
 				}
 			}
 
-			// Draw text
-			
-			m_spriteBatch.Begin();
+			// Draw debug text
+			// Check for collisions between player and planet
+			if (boCheckCircleCollision(m_player.position, m_homePlanet.position, m_player.fRadius, m_homePlanet.fRadius))
+				m_canvas.vDrawText("CRASH!!!", m_font1, new Vector2(0, 125));
 
-			// Draw Hello World
-			string
-				outputRotation = "Rotation: " + m_player.fGetRotation(),
-				outputVelX = "Velocity X: " + m_player.velocity.X,
-				outputVelZ = "Velocity Z: " + m_player.velocity.Y,
-				outputPosX = "Position X: " + m_player.position.X,
-				outputPosZ = "Position Z: " + m_player.position.Z;
-
-			// Find the center of the string
-			Vector2
-				FontOrigin = new Vector2(0, 0);
-
-			// Draw the strings
-			m_spriteBatch.DrawString(m_font1, outputRotation, new Vector2(0, 0), Color.LightGreen,
-					0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
-			m_spriteBatch.DrawString(m_font1, outputVelX, new Vector2(0, 25), Color.LightGreen,
-					0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
-			m_spriteBatch.DrawString(m_font1, outputVelZ, new Vector2(0, 50), Color.LightGreen,
-					0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
-			m_spriteBatch.DrawString(m_font1, outputPosX, new Vector2(0, 75), Color.LightGreen,
-					0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
-			m_spriteBatch.DrawString(m_font1, outputPosZ, new Vector2(0, 100), Color.LightGreen,
-					0, FontOrigin, 1.0f, SpriteEffects.None, 0.5f);
-
-			m_spriteBatch.End();
+			m_canvas.vDrawText("Rotation: " + m_player.fGetRotation(), m_font1, new Vector2(0, 0));
+			m_canvas.vDrawText("Velocity X: " + m_player.velocity.X, m_font1, new Vector2(0, 25));
+			m_canvas.vDrawText("Velocity Z: " + m_player.velocity.Y, m_font1, new Vector2(0, 50));
+			m_canvas.vDrawText("Position X: " + m_player.position.X, m_font1, new Vector2(0, 75));
+			m_canvas.vDrawText("Position Z: " + m_player.position.Z, m_font1, new Vector2(0, 100));
 
 			base.Draw(gameTime);
 		}
@@ -347,7 +303,7 @@ namespace LudumJoerp
 		)
 		{
 			float
-				fConstant = (float)Math.Sqrt(Math.Pow((m_cameraPosition.Y/Math.Cos( MathHelper.ToRadians(m_fFov/2) )), 2) + Math.Pow((double) m_cameraPosition.Y, 2));
+				fConstant = (float)Math.Sqrt(Math.Pow((m_cameraPosition.Y/Math.Cos( MathHelper.ToRadians(/*m_fFov*/45/2) )), 2) + Math.Pow((double) m_cameraPosition.Y, 2));
 			Vector2
 				ret = new Vector2(fX / (m_iWindowWidth / fConstant) + (m_iWindowWidth / 2), fY / (m_iWindowHeight / fConstant) + (m_iWindowHeight / 2));
 
@@ -366,28 +322,6 @@ namespace LudumJoerp
 			if (Math.Abs(distance.Length()) <= (fRadius1 + fRadius2))
 				return true;
 			return false;
-		}
-
-		private void vDrawModel(Model model, Matrix modelTransform/*, Matrix[] absoluteBoneTransforms*/)
-		{
-			Matrix[]
-				transforms = new Matrix[model.Bones.Count];
-			model.CopyAbsoluteBoneTransformsTo(transforms);
-
-			//Draw the model, a model can have multiple meshes, so loop
-			foreach (ModelMesh mesh in model.Meshes)
-			{
-				//This is where the mesh orientation is set
-				foreach (BasicEffect effect in mesh.Effects)
-				{
-					effect.EnableDefaultLighting();
-					effect.Projection = m_projMat;
-					effect.View = m_viewMat;
-					effect.World = /*absoluteBoneTransforms*/transforms[mesh.ParentBone.Index] * modelTransform;
-				}
-				//Draw the mesh, will use the effects set above.
-				mesh.Draw();
-			}
 		}
 	}
 }

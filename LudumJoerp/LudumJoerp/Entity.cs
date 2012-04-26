@@ -7,14 +7,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace LudumJoerp
 {
-	class Planet
+	class Entity
 	{
 		public Vector3 position { get; set; }
 		public Model model { get; set; }
 		public float fRadius { get; set; }
-		public Texture2D texture { get; set; }
 
-		public Planet(
+		public Entity(
 			Vector3 positionIn,
 			Model modelIn,
 			float fRadiusIn
