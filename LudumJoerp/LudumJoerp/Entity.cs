@@ -12,6 +12,7 @@ namespace LudumJoerp
 		public Vector3 position { get; set; }
 		public Model model { get; set; }
 		public float fRadius { get; set; }
+		public Vector2 velocity { get; set; }
 
 		public Entity(
 			Vector3 positionIn,

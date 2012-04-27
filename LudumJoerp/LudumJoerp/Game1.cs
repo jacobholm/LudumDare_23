@@ -24,6 +24,8 @@ namespace LudumJoerp
 			m_player;
 		private Entity
 			m_homePlanet;
+		private List<Entity>
+			m_asteroids;
 		private List<Projectile>
 			m_projectiles;
 		private Texture2D
@@ -113,6 +115,30 @@ namespace LudumJoerp
 			m_bulletPlaneVerts[1].Position = new Vector3(10, 150, 0); m_bulletPlaneVerts[1].TextureCoordinate = new Vector2(1, 0); m_bulletPlaneVerts[1].Normal = new Vector3(0, 1, 0);
 			m_bulletPlaneVerts[2].Position = new Vector3(10, 150, 10); m_bulletPlaneVerts[2].TextureCoordinate = new Vector2(1, 1); m_bulletPlaneVerts[2].Normal = new Vector3(0, 1, 0);
 			m_bulletPlaneVerts[3].Position = new Vector3(0, 150, 10); m_bulletPlaneVerts[3].TextureCoordinate = new Vector2(0, 1); m_bulletPlaneVerts[3].Normal = new Vector3(0, 1, 0);
+
+			// Add asteroids
+			m_asteroids = new List<Entity>();
+			int
+				iRandDegree,
+				iRandDist;
+			Random
+				randomDegree = new Random(),
+				randomDistance = new Random();
+			for(int i = 0; i < 5; i++)
+			{
+				// Place randomly within a 1500unit radius (a minimum of 1000)
+				iRandDegree = randomDegree.Next(0, 360);
+				iRandDist = randomDistance.Next(1000, 2500);
+
+				m_asteroids.Add(new Entity(new Vector3((float)Math.Cos(iRandDegree)*iRandDist, 0, (float)Math.Sin(iRandDegree)*iRandDist), m_homePlanet.model, m_homePlanet.fRadius));
+
+				// Send the astoroid hurling towards the home planet
+				Vector3
+					asteroidVelocity = m_homePlanet.position - m_asteroids[i].position;
+				asteroidVelocity.Normalize();
+
+				m_asteroids[i].velocity = new Vector2(asteroidVelocity.X, asteroidVelocity.Z);
+			}
 		}
 
 		/// <summary>
@@ -135,8 +161,14 @@ namespace LudumJoerp
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
 				this.Exit();
 
-			// Update planet rotation
-			m_fPlanetRot += 0.1f;
+			// Update asteroids
+			foreach(Entity asteroid in m_asteroids)
+			{
+				asteroid.position += new Vector3(asteroid.velocity.X, 0, asteroid.velocity.Y);
+			}
+
+				// Update planet rotation
+				m_fPlanetRot += 0.1f;
 
 			// Update player rotation
 			if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Right))
@@ -264,6 +296,14 @@ namespace LudumJoerp
 				                      *Matrix.CreateRotationZ(MathHelper.ToRadians(-25))
 															* Matrix.CreateTranslation(m_homePlanet.position);
 			m_canvas.vDrawModel(m_homePlanet.model, transformationMatrix);
+
+			// Draw asteroids
+			foreach (Entity asteroid in m_asteroids)
+			{
+				transformationMatrix = Matrix.CreateScale(1.0f/m_fModelScaleFactor)
+				                       * Matrix.CreateTranslation(asteroid.position);
+				m_canvas.vDrawModel(asteroid.model, transformationMatrix);
+			}
 
 			// Draw projectiles
 			for (int i = 0; i < m_projectiles.Count; i++)
