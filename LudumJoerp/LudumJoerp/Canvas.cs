@@ -53,13 +53,14 @@ namespace LudumJoerp
 		public void vDrawText(
 			string sText,
 			SpriteFont font,
-			Vector2 screenPos
+			Vector2 screenPos,
+			Color color
 		)
 		{
 			m_spriteBatch.Begin();
 
 			// Draw the string
-			m_spriteBatch.DrawString(font, sText, screenPos, Color.White,
+			m_spriteBatch.DrawString(font, sText, screenPos, color,
 					0, new Vector2(0, 0), 1.0f, SpriteEffects.None, 0.5f);
 
 			m_spriteBatch.End();
