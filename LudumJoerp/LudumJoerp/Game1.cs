@@ -31,7 +31,8 @@ namespace LudumJoerp
 		private List<Projectile>
 			m_projectiles;
 		private Texture2D
-			m_textureProjectile;
+			m_textureProjectile,
+			m_textureCrosshair;
 		private const int
 			m_iWindowWidth = 1024,
 			m_iWindowHeight = 1024;
@@ -106,6 +107,7 @@ namespace LudumJoerp
 		protected override void LoadContent()
 		{
 			m_textureProjectile = Content.Load<Texture2D>("textures\\projectile");
+			m_textureCrosshair = Content.Load<Texture2D>("textures\\crosshair");
 			m_player.model = Content.Load<Model>("spaceship");
 			m_homePlanet = new Entity(new Vector3(0, 0, 0), Content.Load<Model>("planet"), 300);
 			m_homePlanet.rotation = new Vector3(0, 0, -25);
@@ -164,8 +166,8 @@ namespace LudumJoerp
 				{
 					m_dGameTimeLastAsteroid = gameTime.TotalGameTime.TotalMilliseconds;
 
-					if(m_dAsteroidFrequency > 500)
-						m_dAsteroidFrequency -= 10;
+					if(m_dAsteroidFrequency > 300)
+						m_dAsteroidFrequency -= 100;
 
 					int
 						iRandDegree,
@@ -230,7 +232,10 @@ namespace LudumJoerp
 				shipMouseVector.Normalize();
 				float
 					fAngle = (zeroDegreeVector.X*shipMouseVector.X) + (zeroDegreeVector.Y*shipMouseVector.Y);
-				m_player.vSetRotation(MathHelper.ToDegrees((float)Math.Acos(fAngle)));
+				if(shipMouseVector.Y < 0)
+					m_player.vSetRotation(MathHelper.ToDegrees((float)Math.Acos(fAngle)));
+				else
+					m_player.vSetRotation(360 - MathHelper.ToDegrees((float)Math.Acos(fAngle)));
 				/*
 				if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Right))
 					m_player.vSetRotation(m_player.fGetRotation() -
@@ -239,13 +244,13 @@ namespace LudumJoerp
 					m_player.vSetRotation(m_player.fGetRotation() +
 																(float)gameTime.ElapsedGameTime.TotalMilliseconds * MathHelper.ToRadians(10.0f));
 				 */
-				if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Up))
+				if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.W))
 					m_player.velocity += new Vector2(0, -0.3f);
-				else if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Down))
+				else if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.S))
 					m_player.velocity += new Vector2(0, 0.3f);
-				if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Left))
+				if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.A))
 					m_player.velocity += new Vector2(-0.3f, 0);
-				else if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Right))
+				else if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.D))
 					m_player.velocity += new Vector2(0.3f, 0);
 
 
@@ -262,11 +267,11 @@ namespace LudumJoerp
 					m_projectiles[i].position += new Vector3(m_projectiles[i].velocity.X, 0, m_projectiles[i].velocity.Y);
 
 				// Handle shooting
-				if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Space) &&
-						(gameTime.TotalGameTime.TotalMilliseconds - m_dGameTimeLastShot) > 400)
+				if (Mouse.GetState().LeftButton == ButtonState.Pressed &&
+						(gameTime.TotalGameTime.TotalMilliseconds - m_dGameTimeLastShot) > 150)
 				{
 					m_dGameTimeLastShot = gameTime.TotalGameTime.TotalMilliseconds;
-					m_projectiles.Add(m_player.shoot());
+					m_projectiles.AddRange(m_player.shoot());
 				}
 
 				// Update camera and view projection
@@ -349,10 +354,15 @@ namespace LudumJoerp
 			m_canvas.vDrawText("Position X: " + m_player.position.X, m_font1, new Vector2(0, 75), Color.White);
 			m_canvas.vDrawText("Position Z: " + m_player.position.Z, m_font1, new Vector2(0, 100), Color.White);
 			m_canvas.vDrawText("Mouse X/Y Screen: " + Mouse.GetState().X + "   " + Mouse.GetState().Y, m_font1, new Vector2(0, 125), Color.White);
-			Vector2
-				worldCoords = screenToWorldCoords(Mouse.GetState().X, Mouse.GetState().Y);
-			m_canvas.vDrawText("Mouse X/Y World: " + worldCoords.X + "   " + worldCoords.Y, m_font1, new Vector2(0, 150), Color.White);
 			m_canvas.vDrawText("Asteroid Frequency (every x ms): " + m_dAsteroidFrequency, m_font1, new Vector2(0, 175), Color.White);
+			Vector2
+				shipMouseVector = new Vector2(Mouse.GetState().X - m_iWindowWidth/2, Mouse.GetState().Y - m_iWindowHeight/2) -
+				                  new Vector2(0, 0);
+			shipMouseVector.Normalize();
+			m_canvas.vDrawText("ShipMouse Vector X/Y: " + shipMouseVector.X + "   " + shipMouseVector.Y, m_font1, new Vector2(0, 200), Color.White);
+
+			// Draw crosshair
+			m_canvas.vDrawSprite(m_textureCrosshair, new Vector2(Mouse.GetState().X - 16, Mouse.GetState().Y - 16));
 
 			if(m_boGameOver)
 				m_canvas.vDrawText("GAME OVER!!! Press 'R' to restart. ", m_font1, new Vector2(m_iWindowWidth/2, m_iWindowHeight/2), Color.Red);

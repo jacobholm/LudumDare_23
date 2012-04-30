@@ -47,12 +47,23 @@ namespace LudumJoerp
 			return m_fRotationY;
 		}
 
-		public Projectile shoot(
+		public List<Projectile> shoot(
 		)
 		{
 			Vector2
 				vel = new Vector2((float)Math.Cos(MathHelper.ToRadians(m_fRotationY)) * 10.0f, -(float)Math.Sin(MathHelper.ToRadians(m_fRotationY)) * 10.0f);
-			return new Projectile(position, vel);
+			List<Projectile>
+				projectiles = new List<Projectile>();
+			Vector3
+				offset1 = new Vector3((float)Math.Cos(MathHelper.ToRadians(m_fRotationY + 90)) * 40, 0, (float)Math.Sin(MathHelper.ToRadians(m_fRotationY + 90)) * -40),
+				offset2 = new Vector3((float)Math.Cos(MathHelper.ToRadians(m_fRotationY - 90)) * 40, 0, (float)Math.Sin(MathHelper.ToRadians(m_fRotationY - 90)) * -40);
+			projectiles.Add(new Projectile(offset1 + position + new Vector3((float)Math.Cos(MathHelper.ToRadians(m_fRotationY)) * 25,
+																																			0,
+																																			(float)Math.Sin(MathHelper.ToRadians(m_fRotationY)) * -25), vel));
+			projectiles.Add(new Projectile(offset2 + position + new Vector3((float)Math.Cos(MathHelper.ToRadians(m_fRotationY)) * 25,
+																																			0,
+																																			(float)Math.Sin(MathHelper.ToRadians(m_fRotationY)) * -25), vel));
+			return projectiles;
 		}
 	}
 }

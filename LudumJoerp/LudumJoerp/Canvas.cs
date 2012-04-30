@@ -65,5 +65,15 @@ namespace LudumJoerp
 
 			m_spriteBatch.End();
 		}
+
+		public void vDrawSprite(
+			Texture2D sprite,
+			Vector2 screenPos
+		)
+		{
+			m_spriteBatch.Begin();
+			m_spriteBatch.Draw(sprite, screenPos, Color.White);
+			m_spriteBatch.End();
+		}
 	}
 }
