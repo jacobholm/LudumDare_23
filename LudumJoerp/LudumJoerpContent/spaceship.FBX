@@ -9,12 +9,12 @@ FBXHeaderExtension:  {
 	CreationTimeStamp:  {
 		Version: 1000
 		Year: 2012
-		Month: 4
-		Day: 29
-		Hour: 21
-		Minute: 15
-		Second: 1
-		Millisecond: 798
+		Month: 5
+		Day: 20
+		Hour: 17
+		Minute: 19
+		Second: 16
+		Millisecond: 930
 	}
 	Creator: "FBX SDK/FBX Plugins version 2013.1"
 	SceneInfo: "SceneInfo::GlobalInfo", "UserData" {
@@ -36,13 +36,13 @@ FBXHeaderExtension:  {
 			P: "Original|ApplicationVendor", "KString", "", "", "Autodesk"
 			P: "Original|ApplicationName", "KString", "", "", "3ds Max"
 			P: "Original|ApplicationVersion", "KString", "", "", "2012"
-			P: "Original|DateTime_GMT", "DateTime", "", "", "29/04/2012 19:15:01.797"
+			P: "Original|DateTime_GMT", "DateTime", "", "", "20/05/2012 15:19:16.929"
 			P: "Original|FileName", "KString", "", "", "C:\Jacob\Documents\Jacob\Projects\LudumDare_23\LudumJoerp\LudumJoerpContent\spaceship.FBX"
 			P: "LastSaved", "Compound", "", ""
 			P: "LastSaved|ApplicationVendor", "KString", "", "", "Autodesk"
 			P: "LastSaved|ApplicationName", "KString", "", "", "3ds Max"
 			P: "LastSaved|ApplicationVersion", "KString", "", "", "2012"
-			P: "LastSaved|DateTime_GMT", "DateTime", "", "", "29/04/2012 19:15:01.797"
+			P: "LastSaved|DateTime_GMT", "DateTime", "", "", "20/05/2012 15:19:16.929"
 		}
 	}
 }
@@ -60,7 +60,7 @@ GlobalSettings:  {
 		P: "UnitScaleFactor", "double", "Number", "",2.54
 		P: "OriginalUnitScaleFactor", "double", "Number", "",2.54
 		P: "AmbientColor", "ColorRGB", "Color", "",0,0,0
-		P: "DefaultCamera", "KString", "", "", "Producer Front"
+		P: "DefaultCamera", "KString", "", "", "Producer Perspective"
 		P: "TimeMode", "enum", "", "",6
 		P: "TimeSpanStart", "KTime", "Time", "",0
 		P: "TimeSpanStop", "KTime", "Time", "",153953860000
@@ -73,7 +73,7 @@ GlobalSettings:  {
 
 Documents:  {
 	Count: 1
-	Document: 974620800, "", "Scene" {
+	Document: 1399149264, "", "Scene" {
 		Properties70:  {
 			P: "SourceObject", "object", "", ""
 			P: "ActiveAnimStackName", "KString", "", "", ""
@@ -93,7 +93,7 @@ References:  {
 
 Definitions:  {
 	Version: 100
-	Count: 7
+	Count: 8
 	ObjectType: "GlobalSettings" {
 		Count: 1
 	}
@@ -268,13 +268,35 @@ Definitions:  {
 			}
 		}
 	}
+	ObjectType: "Video" {
+		Count: 1
+		PropertyTemplate: "FbxVideo" {
+			Properties70:  {
+				P: "ImageSequence", "bool", "", "",0
+				P: "ImageSequenceOffset", "int", "Integer", "",0
+				P: "FrameRate", "double", "Number", "",0
+				P: "LastFrame", "int", "Integer", "",0
+				P: "Width", "int", "Integer", "",0
+				P: "Height", "int", "Integer", "",0
+				P: "Path", "KString", "XRefUrl", "", ""
+				P: "StartFrame", "int", "Integer", "",0
+				P: "StopFrame", "int", "Integer", "",0
+				P: "PlaySpeed", "double", "Number", "",0
+				P: "Offset", "KTime", "Time", "",0
+				P: "InterlaceMode", "enum", "", "",0
+				P: "FreeRunning", "bool", "", "",0
+				P: "Loop", "bool", "", "",0
+				P: "AccessMode", "enum", "", "",0
+			}
+		}
+	}
 }
 
 ; Object properties
 ;------------------------------------------------------------------
 
 Objects:  {
-	Geometry: 985149296, "Geometry::", "Mesh" {
+	Geometry: 1398646096, "Geometry::", "Mesh" {
 		Properties70:  {
 			P: "Color", "ColorRGB", "Color", "",0.443137254901961,0.529411764705882,0.0235294117647059
 		}
@@ -446,7 +468,7 @@ Objects:  {
 			}
 		}
 	}
-	Model: 1389754480, "Model::Box001", "Mesh" {
+	Model: 1683491696, "Model::Box001", "Mesh" {
 		Version: 232
 		Properties70:  {
 			P: "PreRotation", "Vector3D", "Vector", "",-90,-0,0
@@ -462,68 +484,62 @@ Objects:  {
 		Shading: T
 		Culling: "CullingOff"
 	}
-	Material: 1390718592, "Material::01 - Default", "" {
+	Material: 1679920608, "Material::01 - Default", "" {
 		Version: 102
 		ShadingModel: "phong"
 		MultiLayer: 0
 		Properties70:  {
 			P: "ShadingModel", "KString", "", "", "phong"
 			P: "EmissiveFactor", "double", "Number", "",0
-			P: "AmbientColor", "ColorRGB", "Color", "",0.588235318660736,0.588235318660736,0.588235318660736
-			P: "DiffuseColor", "ColorRGB", "Color", "",0.588235318660736,0.588235318660736,0.588235318660736
+			P: "AmbientColor", "ColorRGB", "Color", "",1,0.34901961684227,0.34901961684227
+			P: "DiffuseColor", "ColorRGB", "Color", "",1,0.34901961684227,0.34901961684227
 			P: "TransparentColor", "ColorRGB", "Color", "",1,1,1
 			P: "SpecularColor", "ColorRGB", "Color", "",0.899999976158142,0.899999976158142,0.899999976158142
 			P: "SpecularFactor", "double", "Number", "",0
 			P: "ShininessExponent", "double", "Number", "",1.99999991737042
 			P: "Emissive", "Vector3D", "Vector", "",0,0,0
-			P: "Ambient", "Vector3D", "Vector", "",0.588235318660736,0.588235318660736,0.588235318660736
-			P: "Diffuse", "Vector3D", "Vector", "",0.588235318660736,0.588235318660736,0.588235318660736
+			P: "Ambient", "Vector3D", "Vector", "",1,0.34901961684227,0.34901961684227
+			P: "Diffuse", "Vector3D", "Vector", "",1,0.34901961684227,0.34901961684227
 			P: "Specular", "Vector3D", "Vector", "",0,0,0
 			P: "Shininess", "double", "Number", "",1.99999991737042
 			P: "Opacity", "double", "Number", "",1
 			P: "Reflectivity", "double", "Number", "",0
 		}
 	}
-	Texture: 980455984, "Texture::Map #1", "" {
+	Video: 1679921008, "Video::Map #1", "Clip" {
+		Type: "Clip"
+		Properties70:  {
+			P: "Path", "KString", "XRefUrl", "", "C:\Jacob\Documents\Jacob\Projects\LudumDare_23\LudumJoerp\LudumJoerpContent\textures\explosion.png"
+		}
+		UseMipMap: 0
+		Filename: "C:\Jacob\Documents\Jacob\Projects\LudumDare_23\LudumJoerp\LudumJoerpContent\textures\explosion.png"
+		RelativeFilename: "textures\explosion.png"
+	}
+	Texture: 1678456160, "Texture::Map #1", "" {
 		Type: "TextureVideoClip"
 		Version: 202
 		TextureName: "Texture::Map #1"
 		Properties70:  {
-			P: "3dsMax", "Compound", "", ""
-			P: "3dsMax|ClassIDa", "int", "Integer", "",564
-			P: "3dsMax|ClassIDb", "int", "Integer", "",0
-			P: "3dsMax|SuperClassID", "int", "Integer", "",3088
-			P: "3dsMax|parameters", "Compound", "", ""
-			P: "3dsMax|parameters|color1", "Color", "", "A",0,0,0
-			P: "3dsMax|parameters|color2", "Color", "", "A",1,1,1
-			P: "3dsMax|parameters|map1", "Reference", "", "A"
-			P: "3dsMax|parameters|map2", "Reference", "", "A"
-			P: "3dsMax|parameters|map1Enabled", "Bool", "", "A",1
-			P: "3dsMax|parameters|map2Enabled", "Bool", "", "A",1
-			P: "3dsMax|parameters|size", "Float", "", "A",2.700002
-			P: "3dsMax|parameters|phase", "Float", "", "A",0
-			P: "3dsMax|parameters|levels", "Float", "", "A",5.5
-			P: "3dsMax|parameters|thresholdLow", "Float", "", "A",0
-			P: "3dsMax|parameters|thresholdHigh", "Float", "", "A",1
-			P: "3dsMax|parameters|type", "Integer", "", "A",1
-			P: "3dsMax|parameters|coords", "Reference", "", "A"
-			P: "3dsMax|parameters|output", "Reference", "", "A"
+			P: "Translation", "Vector", "", "A",-0.5,-0.5,0
+			P: "Scaling", "Vector", "", "A",2,2,1
+			P: "UVSet", "KString", "", "", "UVChannel_1"
+			P: "UseMaterial", "bool", "", "",1
 		}
-		Media: ""
-		FileName: ""
-		RelativeFilename: ""
+		Media: "Video::Map #1"
+		FileName: "C:\Jacob\Documents\Jacob\Projects\LudumDare_23\LudumJoerp\LudumJoerpContent\textures\explosion.png"
+		RelativeFilename: "textures\explosion.png"
 		ModelUVTranslation: 0,0
 		ModelUVScaling: 1,1
-		Texture_Alpha_Source: "None"
+		Texture_Alpha_Source: "Alpha_Black"
 		Cropping: 0,0,0,0
 	}
-	AnimationStack: 981963344, "AnimStack::Take 001", "" {
+	AnimationStack: 1678934368, "AnimStack::Take 001", "" {
 		Properties70:  {
 			P: "LocalStop", "KTime", "Time", "",153953860000
 			P: "ReferenceStop", "KTime", "Time", "",153953860000
 		}
 	}
-	AnimationLayer: 707701552, "AnimLayer::BaseLayer", "" {
+	AnimationLayer: 981898192, "AnimLayer::BaseLayer", "" {
 	}
 }
 
@@ -533,19 +549,22 @@ Objects:  {
 Connections:  {
 	
 	;Model::Box001, Model::RootNode
-	C: "OO",1389754480,0
+	C: "OO",1683491696,0
 	
 	;AnimLayer::BaseLayer, AnimStack::Take 001
-	C: "OO",707701552,981963344
+	C: "OO",981898192,1678934368
 	
 	;Geometry::, Model::Box001
-	C: "OO",985149296,1389754480
+	C: "OO",1398646096,1683491696
 	
 	;Material::01 - Default, Model::Box001
-	C: "OO",1390718592,1389754480
+	C: "OO",1679920608,1683491696
 	
 	;Texture::Map #1, Material::01 - Default
-	C: "OP",980455984,1390718592, "DiffuseColor"
+	C: "OP",1678456160,1679920608, "DiffuseColor"
+	
+	;Video::Map #1, Texture::Map #1
+	C: "OO",1679921008,1678456160
 }
 ;Takes section
 ;----------------------------------------------------

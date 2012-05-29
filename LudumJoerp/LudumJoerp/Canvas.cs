@@ -28,7 +28,7 @@ namespace LudumJoerp
 			m_spriteBatch = new SpriteBatch(graphicsDevice);
 		}
 
-		public void vDrawModel(Model model, Matrix modelTransform/*, Matrix[] absoluteBoneTransforms*/)
+		public void vDrawModel(Model model, Matrix modelTransform)
 		{
 			Matrix[]
 				transforms = new Matrix[model.Bones.Count];
@@ -41,6 +41,9 @@ namespace LudumJoerp
 				foreach (BasicEffect effect in mesh.Effects)
 				{
 					effect.EnableDefaultLighting();
+					//effect.DiffuseColor = diffColor;
+					effect.DirectionalLight0.Enabled = true;
+					effect.DirectionalLight0.Direction = new Vector3(0, -1, 0);
 					effect.Projection = m_projMat;
 					effect.View = m_viewMat;
 					effect.World = /*absoluteBoneTransforms*/transforms[mesh.ParentBone.Index] * modelTransform;
