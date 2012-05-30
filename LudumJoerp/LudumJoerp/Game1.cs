@@ -55,7 +55,8 @@ namespace LudumJoerp
 			m_dPassedTime;
 		private bool
 			m_boGameOver = false,
-			m_boUseRuneNav = false;
+			m_boUseRuneNav = false,
+			m_boRuneNavKeyIsDown = false;
 		private int
 			m_iNrAsteroidsBlasted;
 
@@ -228,6 +229,15 @@ namespace LudumJoerp
 				// Check collisions
 				vCheckCollisions(gameTime);
 
+				// Change between Rune nav mode and normal
+				if (!m_boRuneNavKeyIsDown && Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.LeftControl) && Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.D1))
+				{
+					m_boUseRuneNav = !m_boUseRuneNav;
+					m_boRuneNavKeyIsDown = true;
+				}
+				else if (Keyboard.GetState(PlayerIndex.One).IsKeyUp(Keys.LeftControl) && Keyboard.GetState(PlayerIndex.One).IsKeyUp(Keys.D1))
+					m_boRuneNavKeyIsDown = false;
+
 				// Clean up explosions
 				for ( int i = m_explosions.Count; i > 0; i-- )
 				{
@@ -262,8 +272,8 @@ namespace LudumJoerp
 
 					// Update player velocity
 					if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Up))
-						m_player.velocity += new Vector2((float)Math.Cos(MathHelper.ToRadians(m_player.fGetRotation())) * 0.1f,
-																						 -(float)Math.Sin(MathHelper.ToRadians(m_player.fGetRotation())) * 0.1f);
+						m_player.velocity += new Vector2((float)Math.Cos(MathHelper.ToRadians(m_player.fGetRotation())) * 0.2f,
+																						 -(float)Math.Sin(MathHelper.ToRadians(m_player.fGetRotation())) * 0.2f);
 				}
 				else
 				{
@@ -298,7 +308,7 @@ namespace LudumJoerp
 					m_projectiles[i].position += new Vector3(m_projectiles[i].velocity.X, 0, m_projectiles[i].velocity.Y);
 
 				// Handle shooting
-				if (Mouse.GetState().LeftButton == ButtonState.Pressed &&
+				if (((m_boUseRuneNav && Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Space)) || Mouse.GetState().LeftButton == ButtonState.Pressed) &&
 						(gameTime.TotalGameTime.TotalMilliseconds - m_dGameTimeLastShot) > 100)
 				{
 					m_dGameTimeLastShot = gameTime.TotalGameTime.TotalMilliseconds;
